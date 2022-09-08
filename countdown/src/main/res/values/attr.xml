@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CountDownView">
+        <attr name="timeTextSize" format="dimension"/>
+        <attr name="timeFont" format="reference"/>
+        <attr name="timeColor" format="color"/>
+
+        <attr name="background_color" format="color"/>
+        <attr name="cornerRadius" format="dimension"/>
+    </declare-styleable>
+</resources>
