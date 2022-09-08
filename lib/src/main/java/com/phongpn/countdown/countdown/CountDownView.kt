@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.CountDownTimer
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -18,6 +19,7 @@ import com.phongpn.countdown.R
 import com.phongpn.countdown.config.Modifier
 import com.phongpn.countdown.config.TextConfig
 import com.phongpn.countdown.config.TimeConfig
+import com.phongpn.countdown.util.px2sp
 import com.phongpn.countdown.util.updateMargin
 
 class CountDownView @JvmOverloads constructor(
@@ -67,7 +69,7 @@ class CountDownView @JvmOverloads constructor(
     protected fun applyTypeArray(typedArray: TypedArray) {
         mTextConfig.apply {
             timeTextSize =
-                typedArray.getDimension(R.styleable.CountDownView_timeTextSize, 14f).toInt()
+                typedArray.getDimensionPixelSize(R.styleable.CountDownView_timeTextSize, 14).px2sp.toInt()
             val fontId = typedArray.getResourceId(R.styleable.CountDownView_timeFont, -1)
             if (fontId != -1) timeFont = ResourcesCompat.getFont(context, fontId)
             timeColor = typedArray.getColor(R.styleable.CountDownView_timeColor, Color.BLACK)
@@ -160,7 +162,7 @@ class CountDownView @JvmOverloads constructor(
         textConfig.apply {
             fun applyTimeText(view: TextView) {
                 timeFont?.let { view.typeface = it }
-                timeTextSize?.toFloat()?.let { view.textSize = it }
+                timeTextSize?.toFloat()?.let { view.setTextSize(TypedValue.COMPLEX_UNIT_SP,it) }
                 timeColor?.let { view.setTextColor(it) }
             }
 
