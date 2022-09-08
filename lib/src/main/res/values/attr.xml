@@ -7,5 +7,7 @@
 
         <attr name="background_color" format="color"/>
         <attr name="cornerRadius" format="dimension"/>
+
+        <attr name="background_suffix" format="reference"/>
     </declare-styleable>
 </resources>

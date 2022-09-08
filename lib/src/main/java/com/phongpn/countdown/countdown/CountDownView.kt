@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
@@ -73,6 +74,8 @@ class CountDownView @JvmOverloads constructor(
         }
 
         mModifier.apply {
+            val backgroundSuffixId = typedArray.getResourceId(R.styleable.CountDownView_background_suffix, -1)
+            if (backgroundSuffixId != -1) suffixBackground = ContextCompat.getDrawable(context, backgroundSuffixId)
             backgroundColor =
                 typedArray.getColor(R.styleable.CountDownView_background_color, Color.WHITE)
             corner = typedArray.getDimension(R.styleable.CountDownView_cornerRadius, 8f).toInt()
@@ -139,66 +142,60 @@ class CountDownView @JvmOverloads constructor(
             tvMinute.background = d
             tvSecond.background = d
             tvMilliSecond.background = d
+
+            suffixBackground?.let {
+                tvSuffixDay.background = it
+                tvSuffixHour.background = it
+                tvSuffixMinute.background = it
+                tvSuffixSecond.background = it
+                tvSuffixDay.text = ""
+                tvSuffixHour.text = ""
+                tvSuffixMinute.text = ""
+                tvSuffixSecond.text = ""
+            }
         }
     }
 
     protected fun applyTextConfig(textConfig: TextConfig) {
         textConfig.apply {
-            tvDay.typeface = timeFont
-            tvDay.textSize = timeTextSize.toFloat()
-            tvDay.setTextColor(timeColor)
+            fun applyTimeText(view: TextView) {
+                timeFont?.let { view.typeface = it }
+                timeTextSize?.toFloat()?.let { view.textSize = it }
+                timeColor?.let { view.setTextColor(it) }
+            }
 
-            tvHour.typeface = timeFont
-            tvHour.textSize = timeTextSize.toFloat()
-            tvHour.setTextColor(timeColor)
+            fun applySuffixText(view: TextView) {
+                suffixFont?.let { view.typeface = it }
+                suffixTextSize?.toFloat()?.let { view.textSize = it }
+                suffixColor?.let { view.setTextColor(it) }
+            }
 
-            tvMinute.typeface = timeFont
-            tvMinute.textSize = timeTextSize.toFloat()
-            tvMinute.setTextColor(timeColor)
+            applyTimeText(tvDay)
+            applyTimeText(tvHour)
+            applyTimeText(tvMinute)
+            applyTimeText(tvSecond)
+            applyTimeText(tvMilliSecond)
 
-            tvSecond.typeface = timeFont
-            tvSecond.textSize = timeTextSize.toFloat()
-            tvSecond.setTextColor(timeColor)
-
-            tvMilliSecond.typeface = timeFont
-            tvMilliSecond.textSize = timeTextSize.toFloat()
-            tvMilliSecond.setTextColor(timeColor)
-
-            tvSuffixDay.typeface = suffixFont
-            tvSuffixDay.textSize = suffixTextSize.toFloat()
-            tvSuffixDay.setTextColor(suffixColor)
-
-            tvSuffixHour.typeface = suffixFont
-            tvSuffixHour.textSize = suffixTextSize.toFloat()
-            tvSuffixHour.setTextColor(suffixColor)
-
-            tvSuffixMinute.typeface = suffixFont
-            tvSuffixMinute.textSize = suffixTextSize.toFloat()
-            tvSuffixMinute.setTextColor(suffixColor)
-
-            tvSuffixSecond.typeface = suffixFont
-            tvSuffixSecond.textSize = suffixTextSize.toFloat()
-            tvSuffixSecond.setTextColor(suffixColor)
+            applySuffixText(tvSuffixDay)
+            applySuffixText(tvSuffixHour)
+            applySuffixText(tvSuffixMinute)
+            applySuffixText(tvSuffixSecond)
         }
     }
 
-    fun config(
-        modifier: Modifier? = null,
-        textConfig: TextConfig? = null,
-        timeConfig: TimeConfig? = null
-    ) {
-        modifier?.let {
-            if (it != mModifier) mModifier = it
-            applyModifier(mModifier)
-        }
-        textConfig?.let {
-            if (it != mTextConfig) mTextConfig = it
-            applyTextConfig(mTextConfig)
-        }
-        timeConfig?.let {
-            if (it != mTimeConfig) mTimeConfig = it
-            applyTimeConfig(mTimeConfig)
-        }
+    fun text(block: TextConfig.() -> Unit)= apply {
+        block(mTextConfig)
+        applyTextConfig(mTextConfig)
+    }
+
+    fun time(block: TimeConfig.() -> Unit) = apply {
+        block(mTimeConfig)
+        applyTimeConfig(mTimeConfig)
+    }
+
+    fun modifier(block: Modifier.() -> Unit) = apply {
+        block(mModifier)
+        applyModifier(mModifier)
     }
 
     fun start(timeInMilli: Long) {
