@@ -29,8 +29,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:includeFontPadding="false"
-        android:text="01"
-        android:textSize="20sp" />
+        android:text="01"/>
 
     <TextView
         android:id="@+id/tv_suffix_hour"

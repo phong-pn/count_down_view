@@ -21,8 +21,8 @@ fun View.updateMargin(all: Int? = null, l: Int? = null, r: Int? = null, t: Int? 
     all?.let { params.setMargins(it) }
     params.setMargins(
         l ?: marginLeft,
-        r ?: marginEnd,
         t ?: marginTop,
+        r ?: marginEnd,
         b ?: marginBottom
     )
     layoutParams = params

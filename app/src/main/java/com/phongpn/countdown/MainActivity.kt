@@ -16,6 +16,8 @@ class MainActivity : AppCompatActivity() {
             .modifier {
                 timePaddingRight = 10.dp
                 timePaddingLeft = 10.dp
+                timeMarginTop = (-10).dp
+                timeMarginBottom = 5.dp
             }
             .text {
                 suffixColor = Color.RED
