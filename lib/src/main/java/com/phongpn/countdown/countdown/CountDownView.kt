@@ -3,6 +3,8 @@ package com.phongpn.countdown.countdown
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.CountDownTimer
 import android.util.AttributeSet
@@ -14,11 +16,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import com.phongpn.countdown.R
 import com.phongpn.countdown.config.Modifier
 import com.phongpn.countdown.config.TextConfig
 import com.phongpn.countdown.config.TimeConfig
+import com.phongpn.countdown.util.dp
 import com.phongpn.countdown.util.px2sp
 import com.phongpn.countdown.util.updateMargin
 
@@ -69,15 +73,20 @@ class CountDownView @JvmOverloads constructor(
     protected fun applyTypeArray(typedArray: TypedArray) {
         mTextConfig.apply {
             timeTextSize =
-                typedArray.getDimensionPixelSize(R.styleable.CountDownView_timeTextSize, 14).px2sp.toInt()
+                typedArray.getDimensionPixelSize(
+                    R.styleable.CountDownView_timeTextSize,
+                    14
+                ).px2sp.toInt()
             val fontId = typedArray.getResourceId(R.styleable.CountDownView_timeFont, -1)
             if (fontId != -1) timeFont = ResourcesCompat.getFont(context, fontId)
             timeColor = typedArray.getColor(R.styleable.CountDownView_timeColor, Color.BLACK)
         }
 
         mModifier.apply {
-            val backgroundSuffixId = typedArray.getResourceId(R.styleable.CountDownView_background_suffix, -1)
-            if (backgroundSuffixId != -1) suffixBackground = ContextCompat.getDrawable(context, backgroundSuffixId)
+            val backgroundSuffixId =
+                typedArray.getResourceId(R.styleable.CountDownView_background_suffix, -1)
+            if (backgroundSuffixId != -1) suffixBackground =
+                ContextCompat.getDrawable(context, backgroundSuffixId)
             backgroundColor =
                 typedArray.getColor(R.styleable.CountDownView_background_color, Color.WHITE)
             corner = typedArray.getDimension(R.styleable.CountDownView_cornerRadius, 8f).toInt()
@@ -137,9 +146,9 @@ class CountDownView @JvmOverloads constructor(
 
             val d = try {
                 tvDay.background as GradientDrawable? ?: GradientDrawable()
-                catch(e: Exception) {
-                    GradientDrawable()
-                }
+            } catch (e: Exception) {
+                GradientDrawable()
+            }
             backgroundColor?.let { d.setColor(it) }
             corner?.toFloat()?.let { d.cornerRadius = it }
 
@@ -165,15 +174,25 @@ class CountDownView @JvmOverloads constructor(
     protected fun applyTextConfig(textConfig: TextConfig) {
         textConfig.apply {
             fun applyTimeText(view: TextView) {
-                timeFont?.let { view.typeface = it }
-                timeTextSize?.toFloat()?.let { view.setTextSize(TypedValue.COMPLEX_UNIT_SP,it) }
+                timeTextSize?.toFloat()?.let { view.setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
                 timeColor?.let { view.setTextColor(it) }
+                timeFont?.let {
+                    view.typeface = it
+                    val rect = Rect()
+                    view.paint.getTextBounds("88", 0, 2, rect)
+                    view.updateLayoutParams { width = rect.width() + view.paddingStart + view.paddingEnd + 4.dp.toInt() }
+                }
             }
 
             fun applySuffixText(view: TextView) {
-                suffixFont?.let { view.typeface = it }
                 suffixTextSize?.toFloat()?.let { view.textSize = it }
                 suffixColor?.let { view.setTextColor(it) }
+                suffixFont?.let {
+                    view.typeface = it
+                    val rect = Rect()
+                    view.paint.getTextBounds("00", 0, 2, rect)
+                    view.updateLayoutParams { width = rect.width() }
+                }
             }
 
             applyTimeText(tvDay)
@@ -189,7 +208,7 @@ class CountDownView @JvmOverloads constructor(
         }
     }
 
-    fun text(block: TextConfig.() -> Unit)= apply {
+    fun text(block: TextConfig.() -> Unit) = apply {
         block(mTextConfig)
         applyTextConfig(mTextConfig)
     }
@@ -216,6 +235,11 @@ class CountDownView @JvmOverloads constructor(
             }
         }
         timer.start()
+    }
+
+    fun startUtil(timeInMilli: Long) {
+        val remain = timeInMilli - System.currentTimeMillis()
+        start(remain)
     }
 
 

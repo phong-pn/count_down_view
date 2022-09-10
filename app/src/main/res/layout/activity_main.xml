@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#4d4d4d"
     android:layout_height="match_parent"
     tools:context="com.phongpn.countdown.MainActivity">
 
@@ -18,9 +19,10 @@
 
     <com.phongpn.countdown.countdown.CountDownView
         android:id="@+id/countdown"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:timeTextSize="20sp"
+        app:layout_constraintHorizontal_bias="0"
         app:background_color="@android:color/holo_red_dark"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"

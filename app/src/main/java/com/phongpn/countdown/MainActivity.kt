@@ -3,6 +3,7 @@ package com.phongpn.countdown
 import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import com.phongpn.countdown.countdown.CountDownView
 import com.phongpn.countdown.util.dp
 
@@ -18,7 +19,12 @@ class MainActivity : AppCompatActivity() {
             }
             .text {
                 suffixColor = Color.RED
+                timeFont = ResourcesCompat.getFont(this@MainActivity, R.font.poppins_medium)
             }
-            .start(300000)
+            .time {
+                showDay = true
+//                showMillisecond = true
+            }
+            .start(1662829200000 - System.currentTimeMillis())
     }
 }
