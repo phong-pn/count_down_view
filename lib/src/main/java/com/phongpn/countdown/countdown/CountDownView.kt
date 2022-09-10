@@ -3,28 +3,19 @@ package com.phongpn.countdown.countdown
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.drawable.GradientDrawable
 import android.os.CountDownTimer
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.core.view.setPadding
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import com.phongpn.countdown.R
-import com.phongpn.countdown.config.Modifier
-import com.phongpn.countdown.config.TextConfig
-import com.phongpn.countdown.config.TimeConfig
-import com.phongpn.countdown.util.dp
+import com.phongpn.countdown.config.Display
+import com.phongpn.countdown.config.Suffix
+import com.phongpn.countdown.config.Text
 import com.phongpn.countdown.util.px2sp
-import com.phongpn.countdown.util.updateMargin
 
 class CountDownView @JvmOverloads constructor(
     context: Context,
@@ -34,9 +25,9 @@ class CountDownView @JvmOverloads constructor(
     private lateinit var timer: CountDownTimer
     private var container: View
 
-    private var mTimeConfig = TimeConfig()
-    private var mTextConfig = TextConfig()
-    private var mModifier = Modifier()
+    private var display = Display()
+    private var suffix = Suffix()
+    private var text = Text()
 
     private var tvDay: TextView
     private var tvSuffixDay: TextView
@@ -48,54 +39,69 @@ class CountDownView @JvmOverloads constructor(
     private val tvSuffixSecond: TextView
     private val tvMilliSecond: TextView
 
+    private val backgroundDay: View
+    private val backgroundHour: View
+    private val backgroundMinute: View
+    private val backgroundSecond: View
+    private val backgroundMillisecond: View
+
     init {
         inflate(context, R.layout.layout_count_down, this)
         container = findViewById(R.id.container)
         tvDay = container.findViewById(R.id.tv_day)
         tvSuffixDay = container.findViewById(R.id.tv_suffix_day)
+        backgroundDay = container.findViewById(R.id.background_day)
         tvHour = container.findViewById(R.id.tv_hour)
         tvSuffixHour = container.findViewById(R.id.tv_suffix_hour)
+        backgroundHour = container.findViewById(R.id.background_hour)
         tvMinute = container.findViewById(R.id.tv_minute)
         tvSuffixMinute = container.findViewById(R.id.tv_suffix_minute)
+        backgroundMinute = container.findViewById(R.id.background_minute)
         tvSecond = container.findViewById(R.id.tv_second)
         tvSuffixSecond = container.findViewById(R.id.tv_suffix_second)
+        backgroundSecond = container.findViewById(R.id.background_second)
         tvMilliSecond = container.findViewById(R.id.tv_millisecond)
+        backgroundMillisecond = container.findViewById(R.id.background_millisecond)
 
         val ta = context.obtainStyledAttributes(attrs, R.styleable.CountDownView)
         applyTypeArray(ta)
         ta.recycle()
 
-        applyTimeConfig(mTimeConfig)
-        applyTextConfig(mTextConfig)
-        applyModifier(mModifier)
+        applyDisplay(display)
+        applySuffix(suffix)
+        applyModifier()
     }
 
     protected fun applyTypeArray(typedArray: TypedArray) {
-        mTextConfig.apply {
-            timeTextSize =
+        text.apply {
+            val textSize =
                 typedArray.getDimensionPixelSize(
                     R.styleable.CountDownView_timeTextSize,
                     14
-                ).px2sp.toInt()
+                ).px2sp
             val fontId = typedArray.getResourceId(R.styleable.CountDownView_timeFont, -1)
-            if (fontId != -1) timeFont = ResourcesCompat.getFont(context, fontId)
-            timeColor = typedArray.getColor(R.styleable.CountDownView_timeColor, Color.BLACK)
+            val font = if (fontId != -1) ResourcesCompat.getFont(context, fontId) else null
+            val color = typedArray.getColor(R.styleable.CountDownView_timeColor, Color.BLACK)
+            viewConfig(font, textSize, color)
+
+            val backgroundColor =
+                typedArray.getColor(R.styleable.CountDownView_background_color, Color.WHITE)
+            val corner = typedArray.getDimension(R.styleable.CountDownView_cornerRadius, 8f)
+            background(cornerRadius = corner, color = backgroundColor)
         }
 
-        mModifier.apply {
+        suffix.apply {
             val backgroundSuffixId =
                 typedArray.getResourceId(R.styleable.CountDownView_background_suffix, -1)
-            if (backgroundSuffixId != -1) suffixBackground =
-                ContextCompat.getDrawable(context, backgroundSuffixId)
-            backgroundColor =
-                typedArray.getColor(R.styleable.CountDownView_background_color, Color.WHITE)
-            corner = typedArray.getDimension(R.styleable.CountDownView_cornerRadius, 8f).toInt()
+            if (backgroundSuffixId != -1) {
+                this.background(ContextCompat.getDrawable(context, backgroundSuffixId)!!)
+            }
         }
     }
 
 
-    protected fun applyTimeConfig(timeConfig: TimeConfig) {
-        timeConfig.apply {
+    protected fun applyDisplay(display: Display) {
+        display.apply {
             tvDay.isVisible = showDay
             tvSuffixDay.isVisible = showDay && showHour
 
@@ -112,119 +118,40 @@ class CountDownView @JvmOverloads constructor(
         }
     }
 
-    protected fun applyModifier(modifier: Modifier) {
-        modifier.apply {
-            fun applyMargin(view: View) {
-                view.updateMargin(
-                    timeMargin?.toInt(),
-                    timeMarginLeft?.toInt(),
-                    timeMarginRight?.toInt(),
-                    timeMarginTop?.toInt(),
-                    timeMarginBottom?.toInt()
-                )
-            }
+    protected fun applyModifier() {
+        text.apply(tvDay, backgroundDay)
+        text.apply(tvHour, backgroundHour)
+        text.apply(tvMinute, backgroundMinute)
+        text.apply(tvSecond, backgroundSecond)
+        text.apply(tvMilliSecond, backgroundMillisecond)
+    }
 
-            fun applyPadding(view: View) {
-                timePadding?.let { view.setPadding(it.toInt()) }
-                timePaddingLeft?.let { view.updatePadding(left = it.toInt()) }
-                timePaddingRight?.let { view.updatePadding(right = it.toInt()) }
-                timePaddingTop?.let { view.updatePadding(top = it.toInt()) }
-                timePaddingBottom?.let { view.updatePadding(bottom = it.toInt()) }
-            }
-
-            applyPadding(tvDay)
-            applyPadding(tvHour)
-            applyPadding(tvMilliSecond)
-            applyPadding(tvSecond)
-            applyPadding(tvMinute)
-
-            applyMargin(tvDay)
-            applyMargin(tvHour)
-            applyMargin(tvMilliSecond)
-            applyMargin(tvSecond)
-            applyMargin(tvMinute)
-
-            val d = try {
-                tvDay.background as GradientDrawable? ?: GradientDrawable()
-            } catch (e: Exception) {
-                GradientDrawable()
-            }
-            backgroundColor?.let { d.setColor(it) }
-            corner?.toFloat()?.let { d.cornerRadius = it }
-
-            tvDay.background = d
-            tvHour.background = d
-            tvMinute.background = d
-            tvSecond.background = d
-            tvMilliSecond.background = d
-
-            suffixBackground?.let {
-                tvSuffixDay.background = it
-                tvSuffixHour.background = it
-                tvSuffixMinute.background = it
-                tvSuffixSecond.background = it
-                tvSuffixDay.text = ""
-                tvSuffixHour.text = ""
-                tvSuffixMinute.text = ""
-                tvSuffixSecond.text = ""
-            }
+    protected fun applySuffix(suffix: Suffix) {
+        suffix.apply {
+            apply(tvSuffixDay, suffixDay)
+            apply(tvSuffixHour, suffixHour)
+            apply(tvSuffixMinute, suffixMinute)
+            apply(tvSuffixSecond, suffixSecond)
         }
     }
 
-    protected fun applyTextConfig(textConfig: TextConfig) {
-        textConfig.apply {
-            fun applyTimeText(view: TextView) {
-                timeTextSize?.toFloat()?.let { view.setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
-                timeColor?.let { view.setTextColor(it) }
-                timeFont?.let {
-                    view.typeface = it
-                    val rect = Rect()
-                    view.paint.getTextBounds("88", 0, 2, rect)
-                    view.updateLayoutParams { width = rect.width() + view.paddingStart + view.paddingEnd + 4.dp.toInt() }
-                }
-            }
-
-            fun applySuffixText(view: TextView) {
-                suffixTextSize?.toFloat()?.let { view.textSize = it }
-                suffixColor?.let { view.setTextColor(it) }
-                suffixFont?.let {
-                    view.typeface = it
-                    val rect = Rect()
-                    view.paint.getTextBounds("00", 0, 2, rect)
-                    view.updateLayoutParams { width = rect.width() }
-                }
-            }
-
-            applyTimeText(tvDay)
-            applyTimeText(tvHour)
-            applyTimeText(tvMinute)
-            applyTimeText(tvSecond)
-            applyTimeText(tvMilliSecond)
-
-            applySuffixText(tvSuffixDay)
-            applySuffixText(tvSuffixHour)
-            applySuffixText(tvSuffixMinute)
-            applySuffixText(tvSuffixSecond)
-        }
+    fun suffix(block: Suffix.() -> Unit) = apply {
+        block(suffix)
+        applySuffix(suffix)
     }
 
-    fun text(block: TextConfig.() -> Unit) = apply {
-        block(mTextConfig)
-        applyTextConfig(mTextConfig)
+    fun display(block: Display.() -> Unit) = apply {
+        block(display)
+        applyDisplay(display)
     }
 
-    fun time(block: TimeConfig.() -> Unit) = apply {
-        block(mTimeConfig)
-        applyTimeConfig(mTimeConfig)
-    }
-
-    fun modifier(block: Modifier.() -> Unit) = apply {
-        block(mModifier)
-        applyModifier(mModifier)
+    fun text(block: Text.() -> Unit) = apply {
+        block(text)
+        applyModifier()
     }
 
     fun start(timeInMilli: Long) {
-        val interval = if (mTimeConfig.showMillisecond) 10 else 1000
+        val interval = if (display.showMillisecond) 10 else 1000
         timer = object : CountDownTimer(timeInMilli, interval.toLong()) {
             override fun onTick(millisUntilFinished: Long) {
                 updateTime(millisUntilFinished)
@@ -246,7 +173,7 @@ class CountDownView @JvmOverloads constructor(
     private fun updateTime(millisUntilFinished: Long) {
         val day = (millisUntilFinished / (1000 * 60 * 60 * 24)).toInt()
         val hour =
-            if (mTimeConfig.showDay) (millisUntilFinished / (1000 * 60 * 60 * 24) / (1000 * 60 * 60)).toInt()
+            if (display.showDay) (millisUntilFinished / (1000 * 60 * 60 * 24) / (1000 * 60 * 60)).toInt()
             else (millisUntilFinished / (1000 * 60 * 60)).toInt()
         val minute = (millisUntilFinished % (1000 * 60 * 60) / (1000 * 60)).toInt()
         val second = (millisUntilFinished % (1000 * 60) / 1000).toInt()

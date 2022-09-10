@@ -13,19 +13,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<CountDownView>(R.id.countdown)
-            .modifier {
-                timePaddingRight = 10.dp
-                timePaddingLeft = 10.dp
-                timeMarginTop = (-10).dp
-                timeMarginBottom = 5.dp
-            }
             .text {
-                suffixColor = Color.RED
-                timeFont = ResourcesCompat.getFont(this@MainActivity, R.font.poppins_medium)
+                padding(l = 0.dp, r = 0.dp)
+                margin(l = 5.dp, r = 5.dp)
+                offset(t = 3.dp.toInt(), b = 3.dp.toInt())
+                background(cornerRadius = 5.dp, color = Color.WHITE)
             }
-            .time {
+            .suffix {
+                margin(all = 5.dp)
+            }
+            .display {
                 showDay = true
 //                showMillisecond = true
+            }
+            .apply {
             }
             .start(1662829200000 - System.currentTimeMillis())
     }
