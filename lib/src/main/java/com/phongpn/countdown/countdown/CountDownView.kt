@@ -135,7 +135,11 @@ class CountDownView @JvmOverloads constructor(
             applyMargin(tvSecond)
             applyMargin(tvMinute)
 
-            val d = tvDay.background as GradientDrawable? ?: GradientDrawable()
+            val d = try {
+                tvDay.background as GradientDrawable? ?: GradientDrawable()
+                catch(e: Exception) {
+                    GradientDrawable()
+                }
             backgroundColor?.let { d.setColor(it) }
             corner?.toFloat()?.let { d.cornerRadius = it }
 
