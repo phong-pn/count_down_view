@@ -137,6 +137,7 @@ class CountDownView @JvmOverloads constructor(
 
             val d = try {
                 tvDay.background as GradientDrawable? ?: GradientDrawable()
+            }
                 catch(e: Exception) {
                     GradientDrawable()
                 }
