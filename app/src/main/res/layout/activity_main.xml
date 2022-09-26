@@ -9,15 +9,15 @@
 
 
     <com.phongpn.countdown.countdown.CountDownView
-        android:id="@+id/countdown"
+        android:id="@+id/count_down"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:timeTextSize="20sp"
-        app:background_suffix="@drawable/group_7326"
-        app:layout_constraintHorizontal_bias="0"
-        app:background_color="@android:color/holo_red_dark"
+        app:background_color="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:timeColor="@color/white"
+        app:timeTextSize="10sp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

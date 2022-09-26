@@ -3,8 +3,11 @@ package com.phongpn.countdown.countdown
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.CountDownTimer
+import android.os.Handler
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -15,6 +18,7 @@ import com.phongpn.countdown.R
 import com.phongpn.countdown.config.Display
 import com.phongpn.countdown.config.Suffix
 import com.phongpn.countdown.config.Text
+import com.phongpn.countdown.util.logd
 import com.phongpn.countdown.util.px2sp
 
 class CountDownView @JvmOverloads constructor(
@@ -67,8 +71,8 @@ class CountDownView @JvmOverloads constructor(
         applyTypeArray(ta)
         ta.recycle()
 
-        applyDisplay(display)
-        applySuffix(suffix)
+        applyDisplay()
+        applySuffix()
         applyModifier()
     }
 
@@ -80,9 +84,19 @@ class CountDownView @JvmOverloads constructor(
                     14
                 ).px2sp
             val fontId = typedArray.getResourceId(R.styleable.CountDownView_timeFont, -1)
-            val font = if (fontId != -1) ResourcesCompat.getFont(context, fontId) else null
             val color = typedArray.getColor(R.styleable.CountDownView_timeColor, Color.BLACK)
-            viewConfig(font, textSize, color)
+            if (fontId != -1) ResourcesCompat.getFont(context, fontId, object : ResourcesCompat.FontCallback() {
+                override fun onFontRetrievalFailed(reason: Int) {
+                    reason.logd()
+                    viewConfig(null, textSize, color)
+                }
+
+                override fun onFontRetrieved(typeface: Typeface) {
+                    "fontok".logd()
+                    viewConfig(typeface, textSize, color)
+                    applyModifier()
+                }
+            }, Handler())
 
             val backgroundColor =
                 typedArray.getColor(R.styleable.CountDownView_background_color, Color.WHITE)
@@ -100,7 +114,7 @@ class CountDownView @JvmOverloads constructor(
     }
 
 
-    protected fun applyDisplay(display: Display) {
+    protected fun applyDisplay() {
         display.apply {
             tvDay.isVisible = showDay
             tvSuffixDay.isVisible = showDay && showHour
@@ -126,7 +140,7 @@ class CountDownView @JvmOverloads constructor(
         text.apply(tvMilliSecond, backgroundMillisecond)
     }
 
-    protected fun applySuffix(suffix: Suffix) {
+    protected fun applySuffix() {
         suffix.apply {
             apply(tvSuffixDay, suffixDay)
             apply(tvSuffixHour, suffixHour)
@@ -137,12 +151,12 @@ class CountDownView @JvmOverloads constructor(
 
     fun suffix(block: Suffix.() -> Unit) = apply {
         block(suffix)
-        applySuffix(suffix)
+        applySuffix()
     }
 
     fun display(block: Display.() -> Unit) = apply {
         block(display)
-        applyDisplay(display)
+        applyDisplay()
     }
 
     fun text(block: Text.() -> Unit) = apply {

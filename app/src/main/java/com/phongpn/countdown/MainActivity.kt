@@ -12,12 +12,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<CountDownView>(R.id.countdown)
+        findViewById<CountDownView>(R.id.count_down)
             .text {
                 padding(l = 0.dp, r = 0.dp)
                 margin(l = 5.dp, r = 5.dp)
                 offset(t = 3.dp.toInt(), b = 3.dp.toInt())
-                background(cornerRadius = 5.dp, color = Color.WHITE)
+                viewConfig(
+                    color = Color.WHITE
+                )
+//                background(cornerRadius = 5.dp, color = Color.WHITE)
             }
             .suffix {
                 margin(all = 5.dp)

@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.core.view.setPadding
 import androidx.core.view.updatePadding
 import com.phongpn.countdown.util.dp
+import com.phongpn.countdown.util.logd
 import com.phongpn.countdown.util.updateMargin
 
 class Text {
@@ -118,6 +119,7 @@ class Text {
         }
 
         text.apply {
+            viewConfig?.font?.logd() ?: "fontnull".logd()
             viewConfig?.font?.let { typeface = it }
             viewConfig?.textSize?.let { setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
             viewConfig?.color?.let { setTextColor(it) }
